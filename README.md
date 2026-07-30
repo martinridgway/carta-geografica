@@ -25,7 +25,7 @@ These instructions will get you a copy of the project up and running on your loc
    ```
 4. Run the application with `npm run dev`
 
-Open http://localhost:8200/ in your browser, and voila! (This project's local dev server always runs on port 8200, not Vite's default 5173, to avoid clashing with other projects running locally.)
+Open http://localhost:5173/ in your browser, and voila! (Vite's default port. Override it by setting `APP_PORT` in `.env.local` if it clashes with something else you're running.)
 
 ## Saving and displaying locations
 

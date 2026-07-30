@@ -5,6 +5,6 @@
 **Stack**: React 19 + Vite, OpenLayers 10, Sass. `server/` holds an optional, currently-disabled companion server (personal Shield-screensaver feature) — see `docs/PROJECT.md` before touching it.
 
 ## Standing conventions
-- **Local dev server always defaults to port 8200** (Martin's convention, avoids clashing with other local projects) — set as `server.port` in `vite.config.js`.
+- Local dev/preview server port is overridable via `APP_PORT` in `.env.local` (falls back to Vite's own default when unset) — wired into `server.port`/`preview.port` in `vite.config.js`.
 - Commit as author Martin Ridgway (email already in this repo's git config).
 - Documentation is finished *before* every push, and pushed together with the code — not as a follow-up. Keep `docs/PROJECT.md` to an index; put real detail in `docs/history/YYYY-MM.md` and `docs/PLAN-*.md`.

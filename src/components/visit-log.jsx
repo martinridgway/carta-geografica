@@ -14,7 +14,14 @@ function today() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function VisitLog({ location, readOnly = false }) {
+function VisitLog({
+  location,
+  readOnly = false,
+  pendingPin,
+  pinPickerActive,
+  onStartPinPicker,
+  onClearPin
+}) {
   const [date, setDate] = useState(today);
   const [note, setNote] = useState("");
 
@@ -38,9 +45,20 @@ function VisitLog({ location, readOnly = false }) {
       return;
     }
 
-    addVisit(location.id, { date, note: note.trim() });
+    addVisit(location.id, {
+      date,
+      note: note.trim(),
+      pin: pendingPin || undefined
+    });
     setNote("");
+    onClearPin?.();
   };
+
+  const pinLabel = pendingPin
+    ? "Pin set"
+    : pinPickerActive
+    ? "Click the map…"
+    : "Pin a spot";
 
   return (
     <div className="visit-log">
@@ -49,6 +67,12 @@ function VisitLog({ location, readOnly = false }) {
           {sorted.map(visit => (
             <li key={visit.id} className="visit-log__entry">
               <span className="visit-log__date">{formatDate(visit.date)}</span>
+              {visit.pin && (
+                <span
+                  className="visit-log__pin-dot"
+                  title="Pinned on the map"
+                />
+              )}
               <span className="visit-log__note">{visit.note}</span>
               {!readOnly && (
                 <button
@@ -77,6 +101,19 @@ function VisitLog({ location, readOnly = false }) {
             value={note}
             onChange={event => setNote(event.target.value)}
           />
+          <button
+            type="button"
+            className={`visit-log__pin-toggle${
+              pendingPin ? " visit-log__pin-toggle--set" : ""
+            }${pinPickerActive ? " visit-log__pin-toggle--active" : ""}`}
+            onClick={() =>
+              pendingPin || pinPickerActive
+                ? onClearPin?.()
+                : onStartPinPicker?.()
+            }
+          >
+            {pinLabel}
+          </button>
           <button type="submit">Add</button>
         </form>
       )}

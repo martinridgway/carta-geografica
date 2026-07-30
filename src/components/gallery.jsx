@@ -18,7 +18,18 @@ function Gallery() {
         <div id="gallery">
           {locations.map(location => (
             <div className="gallery__card" key={location.id}>
-              <Map lon={location.lon} lat={location.lat} />
+              <Map
+                lon={location.lon}
+                lat={location.lat}
+                pins={(location.visits || [])
+                  .filter(visit => visit.pin)
+                  .map(visit => ({
+                    id: visit.id,
+                    lon: visit.pin.lon,
+                    lat: visit.pin.lat,
+                    note: visit.note
+                  }))}
+              />
               <div className="gallery__footer">
                 <p className="gallery__label">
                   {placeTitle(location.address) ||

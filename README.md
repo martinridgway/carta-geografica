@@ -33,6 +33,8 @@ The default view (`/`) is the control screen — search for a place, then click 
 
 Once a location is saved (or re-selected from the list), a small log appears under its coordinates in the panel — add a dated memory ("First weekend trip together") each time the place means something again, and it accumulates into a scrapbook instead of a static caption. It's editable anywhere there's a way back (the control screen, and a gallery's **Full map** link); the chromeless URL, meant for a permanently mounted display, shows it read-only with no form.
 
+A memory can optionally be pinned to an exact spot: click **Pin a spot** next to the form, then click anywhere on that location's map. A marker appears wherever that location is shown (control screen, gallery thumbnails, full map, chromeless) so a memory can read as tied to a specific place within the map, not just the location as a whole.
+
 Two more URLs read from that same saved list:
 
 - `/?view=gallery` — every saved location at once, each as its own small map, with a **&larr; Back** link to the control screen. Good for a single "overview" screen. Each card has two links to view that location alone, full-screen:

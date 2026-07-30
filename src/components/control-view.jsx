@@ -19,34 +19,54 @@ function ControlView() {
   const [lon, setLon] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentLocationId, setCurrentLocationId] = useState(null);
+  const [pendingPin, setPendingPin] = useState(null);
+  const [pinPickerActive, setPinPickerActive] = useState(false);
   const mapRef = useRef(null);
   const locations = useLocations();
   const currentLocation =
     locations.find(location => location.id === currentLocationId) || null;
 
-  const search = useCallback(async query => {
-    setLoading(true);
-
-    try {
-      const result = await geocodeAddress(query);
-      setAddress(result.address);
-      setLat(result.lat);
-      setLon(result.lon);
-      setCurrentLocationId(null);
-    } finally {
-      setLoading(false);
-    }
+  const clearPin = useCallback(() => {
+    setPendingPin(null);
+    setPinPickerActive(false);
   }, []);
 
-  const selectSavedLocation = useCallback(location => {
-    setAddress(location.address);
-    setLat(location.lat);
-    setLon(location.lon);
-    setCurrentLocationId(location.id);
-  }, []);
+  const search = useCallback(
+    async query => {
+      setLoading(true);
+
+      try {
+        const result = await geocodeAddress(query);
+        setAddress(result.address);
+        setLat(result.lat);
+        setLon(result.lon);
+        setCurrentLocationId(null);
+        clearPin();
+      } finally {
+        setLoading(false);
+      }
+    },
+    [clearPin]
+  );
+
+  const selectSavedLocation = useCallback(
+    location => {
+      setAddress(location.address);
+      setLat(location.lat);
+      setLon(location.lon);
+      setCurrentLocationId(location.id);
+      clearPin();
+    },
+    [clearPin]
+  );
 
   const handleSaved = useCallback(location => {
     setCurrentLocationId(location.id);
+  }, []);
+
+  const handleMapClick = useCallback((clickLon, clickLat) => {
+    setPendingPin({ lon: clickLon, lat: clickLat });
+    setPinPickerActive(false);
   }, []);
 
   useEffect(() => {
@@ -73,11 +93,45 @@ function ControlView() {
 
   const coordinatesAreAvailable = Boolean(lat && lon);
 
+  const savedPins = currentLocation
+    ? (currentLocation.visits || [])
+        .filter(visit => visit.pin)
+        .map(visit => ({
+          id: visit.id,
+          lon: visit.pin.lon,
+          lat: visit.pin.lat,
+          note: visit.note
+        }))
+    : [];
+  const pins = pendingPin
+    ? [
+        ...savedPins,
+        { id: "pending", lon: pendingPin.lon, lat: pendingPin.lat, pending: true }
+      ]
+    : savedPins;
+
   return (
     <div className="app-wrapper">
-      {coordinatesAreAvailable && <Map ref={mapRef} lon={lon} lat={lat} />}
+      {coordinatesAreAvailable && (
+        <Map
+          ref={mapRef}
+          lon={lon}
+          lat={lat}
+          pins={pins}
+          onMapClick={pinPickerActive ? handleMapClick : undefined}
+          picking={pinPickerActive}
+        />
+      )}
       <Panel {...address} lon={lon} lat={lat}>
-        {currentLocation && <VisitLog location={currentLocation} />}
+        {currentLocation && (
+          <VisitLog
+            location={currentLocation}
+            pendingPin={pendingPin}
+            pinPickerActive={pinPickerActive}
+            onStartPinPicker={() => setPinPickerActive(true)}
+            onClearPin={clearPin}
+          />
+        )}
       </Panel>
       <SearchBox onSearch={search} disabled={loading} />
       <SaveButton

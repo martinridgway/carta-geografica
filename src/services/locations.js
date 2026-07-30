@@ -37,11 +37,12 @@ export function removeLocation(id) {
   write(read().filter(location => location.id !== id));
 }
 
-export function addVisit(locationId, { date, note }) {
+export function addVisit(locationId, { date, note, pin }) {
   const visit = {
     id: crypto.randomUUID(),
     date,
     note,
+    ...(pin ? { pin } : {}),
     addedAt: new Date().toISOString()
   };
 

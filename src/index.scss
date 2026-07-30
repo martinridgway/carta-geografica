@@ -24,6 +24,25 @@ html {
   left: 0;
   right: 0;
   overflow-y: hidden;
+
+  &--picking {
+    cursor: crosshair;
+  }
+}
+
+.map-pin {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #b00020;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3);
+
+  &--pending {
+    background: transparent;
+    border: 2px dashed #b00020;
+    box-shadow: none;
+  }
 }
 
 .ol-viewport {
@@ -100,6 +119,14 @@ html {
     letter-spacing: 0.05em;
   }
 
+  &__pin-dot {
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #b00020;
+  }
+
   &__note {
     flex: 1;
     color: #222;
@@ -145,6 +172,29 @@ html {
       background: #222;
       color: #fff;
       cursor: pointer;
+    }
+  }
+
+  &__pin-toggle {
+    flex-shrink: 0;
+    font-family: "Montserrat", sans-serif;
+    font-size: 11px;
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    background: rgba(255, 255, 255, 0.9);
+    color: #222;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &--active {
+      border-color: #b00020;
+      color: #b00020;
+    }
+
+    &--set {
+      background: #b00020;
+      border-color: #b00020;
+      color: #fff;
     }
   }
 }

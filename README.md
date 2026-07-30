@@ -27,6 +27,17 @@ These instructions will get you a copy of the project up and running on your loc
 
 Open http://localhost:8200/ in your browser, and voila! (This project's local dev server always runs on port 8200, not Vite's default 5173, to avoid clashing with other projects running locally.)
 
+## Saving and displaying locations
+
+The default view (`/`) is the control screen — search for a place, then click **Save location** to add it to your saved list, shown just below. Click any saved location to jump to it instantly (no re-geocoding), or remove it with the &times; button. Saved locations live in the browser's `localStorage`, so they're shared live across every tab/window pointed at the same app instance on the same machine. A **Gallery view** link in the bottom-right takes you to the next view below.
+
+Two more URLs read from that same saved list:
+
+- `/?view=gallery` — every saved location at once, each as its own small map, with a **&larr; Back** link to the control screen. Good for a single "overview" screen. Each card has two links to view that location alone, full-screen:
+  - **Full map** — the location full-screen with a small **&larr; Gallery** link, for browsing your saved locations one at a time.
+  - **Chromeless** — the same full-screen map with no UI at all. Point a wall-mounted display's browser permanently at this URL for a dedicated screen.
+- `/?location=<id>` — the chromeless URL directly (what the "Chromeless" gallery link points to). Add `&nav=1` for the version with the back link (what "Full map" points to).
+
 ## Deployment
 
 To create a production bundle of your application, run `npm run build` and deploy the resulting `dist/` folder to your production server. Run `npm run preview` to check the production build locally first.

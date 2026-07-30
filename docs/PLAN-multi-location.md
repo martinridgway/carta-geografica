@@ -1,6 +1,6 @@
 # PLAN — multiple saved locations, shown on one screen or many
 
-Status: **designed, not started** (2026-07-30). This is the README's original pitch, never fully built: "choose one or many locations, showcase them across one screen or many screens... from an easy-to-use location picker." The search box (built earlier) covers "easy-to-use location picker" for a single location; this plan covers the "one or many locations" / "one or many screens" part.
+Status: **built and verified** (2026-07-30) — see `docs/history/2026-07.md` for the verification log. Design detail below kept as reference for how/why it was built this way. This was the README's original pitch, never fully built: "choose one or many locations, showcase them across one screen or many screens... from an easy-to-use location picker." The search box (built earlier) covers "easy-to-use location picker" for a single location; this plan covered the "one or many locations" / "one or many screens" part.
 
 ## Context
 

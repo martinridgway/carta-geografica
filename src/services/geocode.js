@@ -1,3 +1,12 @@
+export function placeTitle(address) {
+  if (!address) {
+    return "";
+  }
+
+  const place = address.city || address.town || address.village;
+  return [place, address.state].filter(Boolean).join(", ");
+}
+
 export async function geocodeAddress(query) {
   const response = await fetch(
     `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(

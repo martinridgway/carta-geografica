@@ -17,7 +17,7 @@ html {
   padding: 24px;
 }
 
-#map {
+.map-target {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -127,6 +127,164 @@ hr {
     background: rgba(255, 255, 255, 0.9);
     padding: 4px 8px;
   }
+}
+
+#save-button {
+  position: absolute;
+  top: 96px;
+  left: 44px;
+  z-index: 1;
+
+  button {
+    font-family: "Montserrat", sans-serif;
+    font-size: 14px;
+    padding: 8px 16px;
+    border: 1px solid #222;
+    background: rgba(255, 255, 255, 0.9);
+    color: #222;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+  }
+
+  .save-button__status {
+    margin-top: 4px;
+    font-family: "Montserrat", sans-serif;
+    font-size: 12px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 4px 8px;
+  }
+}
+
+#location-list {
+  position: absolute;
+  top: 148px;
+  left: 44px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    gap: 4px;
+  }
+
+  .location-list__item {
+    font-family: "Montserrat", sans-serif;
+    font-size: 12px;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    background: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .location-list__remove {
+    font-family: "Montserrat", sans-serif;
+    font-size: 12px;
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    background: rgba(255, 255, 255, 0.9);
+    color: #b00020;
+    cursor: pointer;
+  }
+}
+
+#gallery-page {
+  padding: 24px;
+
+  .gallery__back {
+    display: inline-block;
+    margin-bottom: 20px;
+    font-family: "Montserrat", sans-serif;
+    font-size: 13px;
+    color: #222;
+  }
+
+  .gallery--empty {
+    font-family: "Montserrat", sans-serif;
+  }
+}
+
+#gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+
+  .gallery__card {
+    position: relative;
+    height: 240px;
+    overflow: hidden;
+    outline: 1px solid #ddd;
+  }
+
+  .gallery__footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.85);
+  }
+
+  .gallery__label {
+    margin: 0;
+    padding: 8px 12px 4px;
+    font-family: "Montserrat", sans-serif;
+    font-size: 13px;
+    text-align: center;
+  }
+
+  .gallery__links {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 0 12px 8px;
+    font-family: "Montserrat", sans-serif;
+    font-size: 12px;
+
+    a {
+      color: #222;
+    }
+  }
+}
+
+.kiosk-view__back {
+  position: absolute;
+  top: 44px;
+  left: 44px;
+  z-index: 1;
+  font-family: "Montserrat", sans-serif;
+  font-size: 13px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #222;
+}
+
+.kiosk-view__not-found {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: "Montserrat", sans-serif;
+}
+
+#gallery-link {
+  position: absolute;
+  bottom: 44px;
+  right: 44px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 13px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #222;
+  color: #222;
 }
 
 #shield-button {

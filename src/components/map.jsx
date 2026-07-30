@@ -15,6 +15,7 @@ import "ol/ol.css";
 const STADIA_API_KEY = import.meta.env.VITE_STADIA_API_KEY;
 
 const Map = forwardRef(function Map({ lon, lat }, ref) {
+  const mapElRef = useRef(null);
   const olMapRef = useRef(null);
   const viewRef = useRef(null);
 
@@ -46,7 +47,7 @@ const Map = forwardRef(function Map({ lon, lat }, ref) {
         })
       ],
       controls: [], // removing all default controls from the rendered map
-      target: "map",
+      target: mapElRef.current,
       view
     });
 
@@ -62,7 +63,7 @@ const Map = forwardRef(function Map({ lon, lat }, ref) {
     }
   }, [lon, lat]);
 
-  return <div id="map" />;
+  return <div className="map-target" ref={mapElRef} />;
 });
 
 export default Map;

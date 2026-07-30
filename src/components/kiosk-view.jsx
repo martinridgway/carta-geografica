@@ -2,6 +2,7 @@ import React from "react";
 
 import Map from "./map";
 import Panel from "./panel";
+import VisitLog from "./visit-log";
 import { useLocations } from "../hooks/useLocations";
 
 function KioskView({ locationId, nav }) {
@@ -24,7 +25,9 @@ function KioskView({ locationId, nav }) {
   return (
     <div className="app-wrapper">
       <Map lon={location.lon} lat={location.lat} />
-      <Panel {...location.address} lon={location.lon} lat={location.lat} />
+      <Panel {...location.address} lon={location.lon} lat={location.lat}>
+        <VisitLog location={location} readOnly />
+      </Panel>
       {nav && (
         <a className="kiosk-view__back" href="?view=gallery">
           &larr; Gallery

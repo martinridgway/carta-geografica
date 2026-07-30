@@ -6,7 +6,9 @@ import SearchBox from "./search";
 import ShieldButton from "./shield-button";
 import SaveButton from "./save-button";
 import LocationList from "./location-list";
+import VisitLog from "./visit-log";
 import { geocodeAddress, placeTitle } from "../services/geocode";
+import { useLocations } from "../hooks/useLocations";
 
 const DEFAULT_LOCATION = "Boston, MA";
 const SHIELD_CAST_ENABLED = import.meta.env.VITE_ENABLE_SHIELD_CAST === "true";
@@ -16,7 +18,11 @@ function ControlView() {
   const [lat, setLat] = useState(null);
   const [lon, setLon] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [currentLocationId, setCurrentLocationId] = useState(null);
   const mapRef = useRef(null);
+  const locations = useLocations();
+  const currentLocation =
+    locations.find(location => location.id === currentLocationId) || null;
 
   const search = useCallback(async query => {
     setLoading(true);
@@ -26,6 +32,7 @@ function ControlView() {
       setAddress(result.address);
       setLat(result.lat);
       setLon(result.lon);
+      setCurrentLocationId(null);
     } finally {
       setLoading(false);
     }
@@ -35,6 +42,11 @@ function ControlView() {
     setAddress(location.address);
     setLat(location.lat);
     setLon(location.lon);
+    setCurrentLocationId(location.id);
+  }, []);
+
+  const handleSaved = useCallback(location => {
+    setCurrentLocationId(location.id);
   }, []);
 
   useEffect(() => {
@@ -64,13 +76,16 @@ function ControlView() {
   return (
     <div className="app-wrapper">
       {coordinatesAreAvailable && <Map ref={mapRef} lon={lon} lat={lat} />}
-      <Panel {...address} lon={lon} lat={lat} />
+      <Panel {...address} lon={lon} lat={lat}>
+        {currentLocation && <VisitLog location={currentLocation} />}
+      </Panel>
       <SearchBox onSearch={search} disabled={loading} />
       <SaveButton
         address={address}
         lat={lat}
         lon={lon}
         disabled={!coordinatesAreAvailable}
+        onSaved={handleSaved}
       />
       <LocationList onSelect={selectSavedLocation} />
       <a id="gallery-link" href="?view=gallery">

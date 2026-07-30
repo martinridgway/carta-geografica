@@ -70,6 +70,85 @@ html {
   color: #222;
 }
 
+.visit-log {
+  margin-top: 12px;
+  text-align: left;
+
+  &__entries {
+    list-style: none;
+    margin: 0 0 8px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 160px;
+    overflow-y: auto;
+  }
+
+  &__entry {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-family: "Montserrat", sans-serif;
+    font-size: 11px;
+  }
+
+  &__date {
+    flex-shrink: 0;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__note {
+    flex: 1;
+    color: #222;
+    white-space: normal;
+  }
+
+  &__remove {
+    flex-shrink: 0;
+    border: none;
+    background: none;
+    color: #b00020;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 0;
+  }
+
+  &__form {
+    display: flex;
+    gap: 4px;
+
+    input[type="date"] {
+      font-family: "Montserrat", sans-serif;
+      font-size: 11px;
+      padding: 4px 6px;
+      border: 1px solid #ccc;
+      width: 110px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      min-width: 100px;
+      font-family: "Montserrat", sans-serif;
+      font-size: 11px;
+      padding: 4px 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      font-family: "Montserrat", sans-serif;
+      font-size: 11px;
+      padding: 4px 10px;
+      border: 1px solid #222;
+      background: #222;
+      color: #fff;
+      cursor: pointer;
+    }
+  }
+}
+
 hr {
   border: 0;
   height: 1px;

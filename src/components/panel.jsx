@@ -1,7 +1,7 @@
 import React from "react";
 import { toStringHDMS } from "ol/coordinate";
 
-function Panel({ lon, lat, city, town, village, state }) {
+function Panel({ lon, lat, city, town, village, state, children }) {
   const place = city || town || village;
   const centerDegrees =
     lon != null && lat != null ? toStringHDMS([lon, lat], 1) : null;
@@ -18,6 +18,7 @@ function Panel({ lon, lat, city, town, village, state }) {
       <h3 className="map-tagline" id="map-tagline">
         {centerDegrees}
       </h3>
+      {children}
     </div>
   );
 }

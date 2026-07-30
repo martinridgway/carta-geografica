@@ -37,6 +37,40 @@ export function removeLocation(id) {
   write(read().filter(location => location.id !== id));
 }
 
+export function addVisit(locationId, { date, note }) {
+  const visit = {
+    id: crypto.randomUUID(),
+    date,
+    note,
+    addedAt: new Date().toISOString()
+  };
+
+  write(
+    read().map(location =>
+      location.id === locationId
+        ? { ...location, visits: [...(location.visits || []), visit] }
+        : location
+    )
+  );
+
+  return visit;
+}
+
+export function removeVisit(locationId, visitId) {
+  write(
+    read().map(location =>
+      location.id === locationId
+        ? {
+            ...location,
+            visits: (location.visits || []).filter(
+              visit => visit.id !== visitId
+            )
+          }
+        : location
+    )
+  );
+}
+
 export function subscribeToLocations(callback) {
   const handleStorage = event => {
     if (!event.key || event.key === STORAGE_KEY) {

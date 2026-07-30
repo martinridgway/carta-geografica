@@ -31,6 +31,8 @@ Open http://localhost:5173/ in your browser, and voila! (Vite's default port. Ov
 
 The default view (`/`) is the control screen — search for a place, then click **Save location** to add it to your saved list, shown just below. Click any saved location to jump to it instantly (no re-geocoding), or remove it with the &times; button. Saved locations live in the browser's `localStorage`, so they're shared live across every tab/window pointed at the same app instance on the same machine. A **Gallery view** link in the bottom-right takes you to the next view below.
 
+Once a location is saved (or re-selected from the list), a small log appears under its coordinates in the panel — add a dated memory ("First weekend trip together") each time the place means something again, and it accumulates into a scrapbook instead of a static caption. Full map and kiosk views show that log read-only, as part of the display; it's only editable from the control screen.
+
 Two more URLs read from that same saved list:
 
 - `/?view=gallery` — every saved location at once, each as its own small map, with a **&larr; Back** link to the control screen. Good for a single "overview" screen. Each card has two links to view that location alone, full-screen:

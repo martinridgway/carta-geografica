@@ -2,11 +2,12 @@ import React, { useState } from "react";
 
 import { saveLocation } from "../services/locations";
 
-function SaveButton({ address, lat, lon, disabled }) {
+function SaveButton({ address, lat, lon, disabled, onSaved }) {
   const [saved, setSaved] = useState(false);
 
   const handleClick = () => {
-    saveLocation({ address, lat, lon });
+    const location = saveLocation({ address, lat, lon });
+    onSaved?.(location);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };

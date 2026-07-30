@@ -12,6 +12,9 @@
 /build
 /dist
 
+# server (Shield screensaver feature)
+/server/screenshots
+
 # misc
 .DS_Store
 .env.local

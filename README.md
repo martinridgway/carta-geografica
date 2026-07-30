@@ -12,28 +12,36 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-What things you need to install the software and how to install them:
-
-- [NodeJS](https://nodejs.org/en/) (we're using v11.11)
-  - I typically install using NVM, and found [this guide](https://yoember.com/nodejs/the-best-way-to-install-node-js/) a spot-on way to do it
-- Coming soon
+- [NodeJS](https://nodejs.org/en/) `^20.19.0` or `>=22.12.0`
+- A free [Stadia Maps](https://stadiamaps.com) account and API key (used to serve the watercolor map tiles — no credit card required)
 
 ### Installing
 
 1. Clone this repository
-2. Add OpenLayers as a dependency with `npm install ol`
-3. Add any required dependencies with `npm install --save-dev parcel-bundler`
-4. Run the application with `npm start`
+2. Install dependencies with `npm install`
+3. Create a `.env.local` file in the project root with your Stadia Maps key:
+   ```
+   VITE_STADIA_API_KEY=your-key-here
+   ```
+4. Run the application with `npm run dev`
 
-Open http://localhost:1234/ in your browser, and voila!
+Open http://localhost:8200/ in your browser, and voila! (This project's local dev server always runs on port 8200, not Vite's default 5173, to avoid clashing with other projects running locally.)
 
 ## Deployment
 
-To create a production bundle of your application, simply type `npm run build` and copy the `dist/` folder to your production server.
+To create a production bundle of your application, run `npm run build` and deploy the resulting `dist/` folder to your production server. Run `npm run preview` to check the production build locally first.
+
+Remember to configure `VITE_STADIA_API_KEY` in your production environment too — Vite only bakes in env vars present at build time.
+
+### Optional: personal Shield screensaver feature
+
+There's a small optional feature for pushing the current map view to an Nvidia Shield (or similar Android TV device) as a screensaver image, via Home Assistant. It's inert unless `VITE_ENABLE_SHIELD_CAST` is set, and requires the companion server in `server/` to be running alongside the frontend — see `server/README.md` for setup.
 
 ## Built With
 
-Coming soon
+- [React](https://react.dev/) 19
+- [OpenLayers](https://openlayers.org/) 10
+- [Vite](https://vite.dev/)
 
 ## Contributing
 

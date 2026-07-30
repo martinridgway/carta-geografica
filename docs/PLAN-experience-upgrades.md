@@ -1,0 +1,60 @@
+# PLAN — experience upgrades: richer, deeper, more beautiful, more interactive
+
+Status: **designed, not started** (2026-07-30). Captures a deep brainstorm with Martin about what would make *Carta Geografica* a genuinely rich, beautiful experience — not a functional-but-plain map display, and not a port of a trip-planner UI either (see the correction in Context below). **Nothing here has been scoped into a single build session.** Read it, pick a slice, and it likely wants its own focused plan (the way `docs/PLAN-multi-location.md` did) rather than being built wholesale.
+
+## Context
+
+The multi-location feature (`docs/PLAN-multi-location.md`, built 2026-07-30) gave the app a real data model — saved locations in `localStorage`, three view modes — but every location is still just a name, a lat/lon, and a watercolor tile view. Martin's prompt: "what could we do to make this a truly beautiful experience," then a push to dig deep on interactivity, citing `discovering-michigan.netlify.app/attractions` as a reference.
+
+**First pass at this doc got corrected mid-session, and the correction matters**: the first version anchored its one big idea directly on that reference site's specific mechanic — circular photo pins, a click-to-reveal side panel, a "play the route" flythrough — reviewed live in-browser and largely ported. Martin's pushback: that site was meant as *one input*, not the target to replicate. The site is a trip-itinerary tool (many stops, shallow info each, functional chrome). This app's actual identity is different — a wall-mounted art piece about a small number of places that matter, meant to be looked at more than clicked. Four richer, more bespoke directions came out of a second pass and were confirmed by Martin (multi-select, all four chosen): **ambient/passive-first art, living cartography, depth over breadth per place, and a map of meaning rather than just pins.** They're designed below as one interlocking system, not four separate features bolted together — several ideas depend on infrastructure another pillar also needs (presence detection, audio/photo hosting, the companion server), and a few explicitly borrow each other's visual language (the ink-draw effect from Living Cartography is also how Map of Meaning draws its relationship lines).
+
+## Pillar 1: Ambient, passive-first art
+
+The core insight: nobody stands in front of a wall-mounted display clicking things. It's seen from across a room, most of the time by nobody. The richest interaction is often *no* interaction.
+
+- **Presence-aware wake/sleep**, using the Home Assistant integration this project already talks to (the paused Shield feature's companion server calls HA's REST API today). When a motion/presence sensor entity reports the room occupied, the display wakes — a location's story fades in, maybe a soundscape starts (Pillar 3). When the room's been empty past a threshold, it fades back to pure watercolor map with zero chrome — it becomes a painting again, not an idle app. Needs an actual presence-capable entity checked against Martin's real HA inventory (the same "check the entity registry directly, don't assume" discipline used when the Shield entity was picked) before this is more than a sketch.
+- **A living-painting idle state**, rather than a frozen static map when nothing's happening: an imperceptibly slow drift/pan across the location's terrain (OL's `View.animate()` with a very long duration, small distance) — never static, never obviously "an app" either. This is the ambient default; presence-wake is the occasional interruption to it, not the other way around.
+- **Whole-display day/night behavior**, extending the earlier time-of-day-tint idea from per-location color to the entire piece: late at night the display gently dims toward near-black (kind to a permanently-mounted screen, and honestly just correct for a bedroom or hallway) and fades back up at a scheduled hour — driven by the same `suncalc`-based approach floated earlier, or directly by HA's `sun.sun` entity since that integration is already in play here.
+
+## Pillar 2: Living cartography
+
+Rather than adding trip-planner UI chrome on top of the watercolor map (pins, panels, badges), make the *art itself* the thing that responds — richness expressed in the same visual language the map already speaks, not bolted-on widgets.
+
+- **Weather painted into the watercolor, not displayed as a widget**: fetch current conditions for a location (Open-Meteo's API is free and keyless, matching this app's existing pattern of using no-auth public APIs like Nominatim) and render it as a subtle wash — a faint rain-streak texture, a soft snow fleck, a warmer golden-hour tint — composited into the tile rendering itself, the way an actual watercolor artist would paint current conditions into a scene rather than stamp a weather icon in the corner.
+- **Ink-spreading reveal animation**: when a location first loads, or when Pillar 4's relationship lines connect two places, draw the line/reveal with an SVG `stroke-dashoffset` animation that looks like ink spreading across paper — replacing the reference site's literal camera-flythrough with something that reads as the map being *drawn*, not the camera being *flown*.
+- **Generative antique-map flourishes**: a small compass rose placed in an unused corner, a hand-lettered flourish near the title panel, a faint "unexplored" illustration treatment for parts of the world with no saved locations nearby (relevant once Pillar 4's wider world view exists) — procedural micro-details that read as part of the artwork, the same instinct that makes the existing `.ol-viewport` outline and serif title panel feel considered rather than default.
+- **Seasonal palette drift**: a subtle, slow filter shift across the real calendar year (warmer in autumn, cooler in winter) so the piece visibly ages with the year it's mounted in, independent of which location is showing.
+
+## Pillar 3: Depth over breadth, per place
+
+The reference site is itinerary-shaped: many stops, a little info each. This app's actual premise is the opposite — a small number of places that matter, treated with real depth instead of being captured once and left static.
+
+- **A soundscape per location**, played softly while it's the active display (natural pairing with Pillar 1's presence-wake — sound starting when someone actually enters the room, not looping constantly). Sourcing options, cheapest first: a small curated ambient library picked heuristically from Nominatim's address fields (coastal vs. urban vs. forest already differentiate to a degree in that data); or user-uploaded audio, which needs real file hosting — see the infrastructure note below, this reuses the same server-side piece photo hosting would need.
+- **Hand-placed personal annotation**: tap an exact spot within a saved location's map and drop a small hand-drawn-style mark (a heart, a star, a short note) — `annotations: [{ x, y, note, addedAt }]` as a sub-record of the location, rendered as a lightweight SVG overlay styled like a sketch, not a generic map-pin icon library asset.
+- **Historical map overlay** — a "then vs. now" toggle for a place. Needs a real research spike before design goes further: whether a usable historical tile source exists for arbitrary saved locations (something like the David Rumsey Map Collection covers this unevenly by region/era) or whether a simulated aged-paper/sepia filter over the current watercolor tiles is the more honest fallback for places without real archival coverage.
+- **A growing log instead of one static caption**: `caption` becomes `visits: [{ date, note, photoUrl? }]` — a place accumulates a scrapbook across years of returning to it, rather than being captured once at save time. This is arguably the single most "wall-mounted-display-shaped" idea in this whole doc: a piece that's worth having permanently mounted is one that visibly changes as your life does, not one that looked the same in 2026 as it does in 2031.
+
+## Pillar 4: A map of meaning, not just pins
+
+- **A constellation/relationship view** — a new mode (`?view=constellation` or similar) presenting saved locations not on a literal Mercator projection but arranged as nodes in a starfield, connected by lines representing relationships *you* define rather than geographic proximity: a chronological thread through your life, a "family trips" cluster, a "someday" cluster of places not yet visited. Visually and emotionally distinct from Explore/Gallery — a star chart of a life, not a road atlas of a region.
+- **Lightweight tagging** (`tags: ["family", "someday", "anniversary"]` on the location record) driving constellation clustering/coloring. Deliberately *not* built out into a filter-bar UI the way the reference site's region pills are — this app's saved-location lists are personal and small; tags exist to shape the constellation's layout and story, not to page through results.
+- **Chronological "map of a life" playback** — the natural evolution of the earlier "Play the Journey" idea, but paced by real elapsed time between save dates rather than a flat interval, so a location saved a year after the last one gets a genuinely longer pause — it plays back like reliving a timeline, not touring a region.
+- Relationship lines drawn with Pillar 2's ink-spreading effect, not a straight route line — one visual language reused across pillars instead of each pillar inventing its own.
+
+## Cross-cutting technical notes
+
+- **The paused Shield companion server (`server/index.js`) is the natural home for most of this pillar's shared plumbing**, not four separate infrastructure decisions: it already talks to Home Assistant (needed for Pillar 1's presence check) and already implements "accept a POSTed binary, save it, serve it back from a static folder" (needed for Pillar 3's audio/photo hosting). Resuming Shield delivery and building this out are complementary uses of the same paused server, not competing threads — noted in the multi-location-era history too.
+- **Weather (Pillar 2) doesn't need Home Assistant** — Open-Meteo is free, keyless, and location-based, fitting the same "public API, no backend" pattern the app already uses for Nominatim and Stadia tiles. Keep it separate from the HA-dependent pieces so it works even before/without the companion server running.
+- **Data model growth is real, not incidental**: annotations, a visits log, tags, and a soundscape reference all extend the location record well beyond the additive fields sketched during the multi-location build. All should stay optional with sensible fallbacks (as the multi-location fields already are), since the record is read by every view — Control, Gallery, Kiosk, and whatever Pillar 4's constellation view becomes.
+- **Personal data leaving the machine is a real question, not a footnote**, given this is a public AGPL repo: uploaded photos/audio and personal annotations are meaningfully more sensitive than a saved lat/lon. Whatever hosts them (the companion server, most likely) should stay strictly local/LAN-only by default, the way the Shield feature's `PUBLIC_HOST` already assumes a home-network address, not a public one.
+
+## Open questions before implementation
+
+- Which pillar to prototype first — they're designed to interlock, but none of them requires the others to ship a first slice.
+- Does Martin actually have a usable presence/motion entity in Home Assistant for Pillar 1? Needs checking against the real entity registry, not assumed — same discipline as the original Shield entity discovery.
+- Historical map tile source availability (Pillar 3) needs a research spike before it's designed further, not just built.
+- None of Pillar 4's constellation-view visual design has been sketched beyond "starfield, not Mercator" — that's a real design pass of its own once it's picked up.
+
+## Explicitly out of scope
+
+The reference site's region-filter pills and map/list toggle — they solve a "many attractions in one region" problem this app doesn't have. None of the four pillars above are a re-skin of that site; each pushes somewhere it didn't go.

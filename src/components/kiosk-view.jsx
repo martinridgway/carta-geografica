@@ -26,7 +26,7 @@ function KioskView({ locationId, nav }) {
     <div className="app-wrapper">
       <Map lon={location.lon} lat={location.lat} />
       <Panel {...location.address} lon={location.lon} lat={location.lat}>
-        <VisitLog location={location} readOnly />
+        <VisitLog location={location} readOnly={!nav} />
       </Panel>
       {nav && (
         <a className="kiosk-view__back" href="?view=gallery">

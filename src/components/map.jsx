@@ -15,7 +15,7 @@ import "ol/ol.css";
 const STADIA_API_KEY = import.meta.env.VITE_STADIA_API_KEY;
 
 const Map = forwardRef(function Map(
-  { lon, lat, pins = [], onMapClick, picking = false },
+  { lon, lat, pins = [], onMapClick, onPinClick, picking = false },
   ref
 ) {
   const mapElRef = useRef(null);
@@ -24,6 +24,8 @@ const Map = forwardRef(function Map(
   const overlaysRef = useRef([]);
   const onMapClickRef = useRef(onMapClick);
   onMapClickRef.current = onMapClick;
+  const onPinClickRef = useRef(onPinClick);
+  onPinClickRef.current = onPinClick;
 
   useImperativeHandle(ref, () => ({
     getOlMap: () => olMapRef.current
@@ -90,15 +92,50 @@ const Map = forwardRef(function Map(
     overlaysRef.current.forEach(overlay => map.removeOverlay(overlay));
 
     overlaysRef.current = pins.map(pin => {
+      const isPhoto = Boolean(pin.thumbUrl);
       const element = document.createElement("div");
-      element.className = pin.pending ? "map-pin map-pin--pending" : "map-pin";
+      element.className = pin.pending
+        ? "map-pin map-pin--pending"
+        : isPhoto
+        ? "map-pin map-pin--photo"
+        : "map-pin";
+
+      if (isPhoto) {
+        // the tail's tip (not the thumbnail) sits on the coordinate, via
+        // the overlay's "bottom-center" positioning below, so a memory's
+        // photo never covers up the exact spot it's tied to
+        const thumb = document.createElement("div");
+        thumb.className = "map-pin__thumb";
+        thumb.style.backgroundImage = `url(${pin.thumbUrl})`;
+        element.appendChild(thumb);
+
+        const tail = document.createElement("div");
+        tail.className = "map-pin__tail";
+        element.appendChild(tail);
+      }
+
       if (pin.note) {
-        element.title = pin.note;
+        element.setAttribute("aria-label", pin.note);
+
+        if (!isPhoto) {
+          const tooltip = document.createElement("span");
+          tooltip.className = "map-pin__tooltip";
+          tooltip.textContent = pin.note;
+          element.appendChild(tooltip);
+        }
+      }
+
+      if (isPhoto && onPinClickRef.current) {
+        element.classList.add("map-pin--clickable");
+        element.addEventListener("click", event => {
+          event.stopPropagation();
+          onPinClickRef.current(pin);
+        });
       }
 
       const overlay = new Overlay({
         position: fromLonLat([pin.lon, pin.lat]),
-        positioning: "center-center",
+        positioning: isPhoto ? "bottom-center" : "center-center",
         element
       });
 

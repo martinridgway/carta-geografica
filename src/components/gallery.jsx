@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 
 import Map from "./map";
+import MemoryModal from "./memory-modal";
 import { useLocations } from "../hooks/useLocations";
 import { placeTitle } from "../services/geocode";
+import { photoSrc } from "../services/photos";
 
 function Gallery() {
   const locations = useLocations();
+  const [openVisit, setOpenVisit] = useState(null);
 
   return (
     <div id="gallery-page">
@@ -27,8 +30,13 @@ function Gallery() {
                     id: visit.id,
                     lon: visit.pin.lon,
                     lat: visit.pin.lat,
-                    note: visit.note
+                    note: visit.note,
+                    thumbUrl: visit.photos?.[0]
+                      ? photoSrc(visit.photos[0].url)
+                      : undefined,
+                    visit
                   }))}
+                onPinClick={pin => setOpenVisit(pin.visit)}
               />
               <div className="gallery__footer">
                 <p className="gallery__label">
@@ -44,6 +52,9 @@ function Gallery() {
             </div>
           ))}
         </div>
+      )}
+      {openVisit && (
+        <MemoryModal visit={openVisit} onClose={() => setOpenVisit(null)} />
       )}
     </div>
   );

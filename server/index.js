@@ -1,88 +1,61 @@
 import express from "express";
 import cors from "cors";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
+import { createPhotosRouter } from "./routes/photos.js";
+import { createScreensaverRouter } from "./routes/screensaver.js";
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const uploadsDir = join(__dirname, "uploads");
 const screenshotsDir = join(__dirname, "screenshots");
 
 const {
+  SERVER_PORT = "8201",
   HA_BASE_URL,
   HA_TOKEN,
   HA_SHIELD_ENTITY_ID,
-  PUBLIC_HOST,
-  SCREENSAVER_SERVER_PORT = "8201"
+  PUBLIC_HOST
 } = process.env;
 
-const REQUIRED_ENV_VARS = [
-  "HA_BASE_URL",
-  "HA_TOKEN",
-  "HA_SHIELD_ENTITY_ID",
-  "PUBLIC_HOST"
-];
-const missing = REQUIRED_ENV_VARS.filter(name => !process.env[name]);
-
-if (missing.length) {
-  console.error(
-    `Missing required env var(s) in .env.local: ${missing.join(", ")}. See server/README.md.`
-  );
-  process.exit(1);
-}
-
+await mkdir(uploadsDir, { recursive: true });
 await mkdir(screenshotsDir, { recursive: true });
 
 const app = express();
-const port = Number(SCREENSAVER_SERVER_PORT);
+const port = Number(SERVER_PORT);
 
 app.use(cors());
-app.use("/screenshots", express.static(screenshotsDir));
+app.use("/uploads", express.static(uploadsDir));
+app.use("/api/photos", createPhotosRouter(uploadsDir));
 
-app.post(
-  "/api/screensaver/send",
-  express.raw({ type: "image/png", limit: "10mb" }),
-  async (req, res) => {
-    if (!req.body || !req.body.length) {
-      res.status(400).json({ error: "No image data received" });
-      return;
-    }
-
-    const filename = `screenshot-${Date.now()}.png`;
-
-    try {
-      await writeFile(join(screenshotsDir, filename), req.body);
-
-      const imageUrl = `http://${PUBLIC_HOST}:${port}/screenshots/${filename}`;
-
-      const haResponse = await fetch(
-        `${HA_BASE_URL}/api/services/media_player/play_media`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${HA_TOKEN}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            entity_id: HA_SHIELD_ENTITY_ID,
-            media_content_id: imageUrl,
-            media_content_type: "image/png"
-          })
-        }
-      );
-
-      if (!haResponse.ok) {
-        const body = await haResponse.text();
-        throw new Error(`Home Assistant responded ${haResponse.status}: ${body}`);
-      }
-
-      res.json({ ok: true, url: imageUrl });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: err.message });
-    }
-  }
+// Shield is an optional add-on to this server, not the reason it runs — only
+// wired up when its Home Assistant config is present, so the server can't be
+// blocked from starting by a personal feature nobody else has configured.
+const shieldConfigured = [HA_BASE_URL, HA_TOKEN, HA_SHIELD_ENTITY_ID, PUBLIC_HOST].every(
+  Boolean
 );
 
+if (shieldConfigured) {
+  app.use("/screenshots", express.static(screenshotsDir));
+  app.use(
+    "/api/screensaver",
+    createScreensaverRouter({
+      screenshotsDir,
+      haBaseUrl: HA_BASE_URL,
+      haToken: HA_TOKEN,
+      shieldEntityId: HA_SHIELD_ENTITY_ID,
+      publicHost: PUBLIC_HOST,
+      port
+    })
+  );
+  console.log("Shield screensaver route enabled.");
+} else {
+  console.log(
+    "Shield screensaver route disabled (set HA_BASE_URL, HA_TOKEN, HA_SHIELD_ENTITY_ID, PUBLIC_HOST in .env.local to enable)."
+  );
+}
+
 app.listen(port, () => {
-  console.log(`Screensaver server listening on http://${PUBLIC_HOST}:${port}`);
+  console.log(`Server listening on http://localhost:${port}`);
 });

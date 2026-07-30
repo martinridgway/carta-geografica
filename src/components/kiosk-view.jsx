@@ -3,6 +3,8 @@ import React, { useState, useCallback } from "react";
 import Map from "./map";
 import Panel from "./panel";
 import VisitLog from "./visit-log";
+import MemoryModal from "./memory-modal";
+import { photoSrc } from "../services/photos";
 import { useLocations } from "../hooks/useLocations";
 
 function KioskView({ locationId, nav }) {
@@ -10,6 +12,7 @@ function KioskView({ locationId, nav }) {
   const location = locations.find(entry => entry.id === locationId);
   const [pendingPin, setPendingPin] = useState(null);
   const [pinPickerActive, setPinPickerActive] = useState(false);
+  const [openVisit, setOpenVisit] = useState(null);
 
   const clearPin = useCallback(() => {
     setPendingPin(null);
@@ -42,7 +45,9 @@ function KioskView({ locationId, nav }) {
       id: visit.id,
       lon: visit.pin.lon,
       lat: visit.pin.lat,
-      note: visit.note
+      note: visit.note,
+      thumbUrl: visit.photos?.[0] ? photoSrc(visit.photos[0].url) : undefined,
+      visit
     }));
   const pins =
     editable && pendingPin
@@ -59,6 +64,7 @@ function KioskView({ locationId, nav }) {
         lat={location.lat}
         pins={pins}
         onMapClick={editable && pinPickerActive ? handleMapClick : undefined}
+        onPinClick={pin => setOpenVisit(pin.visit)}
         picking={editable && pinPickerActive}
       />
       <Panel {...location.address} lon={location.lon} lat={location.lat}>
@@ -69,12 +75,16 @@ function KioskView({ locationId, nav }) {
           pinPickerActive={editable && pinPickerActive}
           onStartPinPicker={editable ? () => setPinPickerActive(true) : undefined}
           onClearPin={editable ? clearPin : undefined}
+          onOpenVisit={setOpenVisit}
         />
       </Panel>
       {nav && (
         <a className="kiosk-view__back" href="?view=gallery">
           &larr; Gallery
         </a>
+      )}
+      {openVisit && (
+        <MemoryModal visit={openVisit} onClose={() => setOpenVisit(null)} />
       )}
     </div>
   );

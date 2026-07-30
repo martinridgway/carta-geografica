@@ -72,6 +72,30 @@ export function removeVisit(locationId, visitId) {
   );
 }
 
+export function addPhotosToVisit(locationId, visitId, photoUrls) {
+  const addedAt = new Date().toISOString();
+  const photos = photoUrls.map(url => ({
+    id: crypto.randomUUID(),
+    url,
+    addedAt
+  }));
+
+  write(
+    read().map(location =>
+      location.id === locationId
+        ? {
+            ...location,
+            visits: (location.visits || []).map(visit =>
+              visit.id === visitId
+                ? { ...visit, photos: [...(visit.photos || []), ...photos] }
+                : visit
+            )
+          }
+        : location
+    )
+  );
+}
+
 export function subscribeToLocations(callback) {
   const handleStorage = event => {
     if (!event.key || event.key === STORAGE_KEY) {

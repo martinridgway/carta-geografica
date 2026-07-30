@@ -35,6 +35,8 @@ Once a location is saved (or re-selected from the list), a small log appears und
 
 A memory can optionally be pinned to an exact spot: click **Pin a spot** next to the form, then click anywhere on that location's map. A marker appears wherever that location is shown (control screen, gallery thumbnails, full map, chromeless) so a memory can read as tied to a specific place within the map, not just the location as a whole.
 
+A memory can also carry a series of photos — attach one or more when adding it, and a pinned memory with photos renders as a small photo marker on the map (the exact spot stays marked by a triangle tail below the thumbnail, not covered by it). Click a photo marker, or the thumbnail chip next to its entry in the log, to open a full-size viewer. This needs the companion server running — see "Companion server" below; without it, everything else in this section still works, just without photos.
+
 Two more URLs read from that same saved list:
 
 - `/?view=gallery` — every saved location at once, each as its own small map, with a **&larr; Back** link to the control screen. Good for a single "overview" screen. Each card has two links to view that location alone, full-screen:
@@ -48,9 +50,11 @@ To create a production bundle of your application, run `npm run build` and deplo
 
 Remember to configure `VITE_STADIA_API_KEY` in your production environment too — Vite only bakes in env vars present at build time.
 
-### Optional: personal Shield screensaver feature
+### Companion server
 
-There's a small optional feature for pushing the current map view to an Nvidia Shield (or similar Android TV device) as a screensaver image, via Home Assistant. It's inert unless `VITE_ENABLE_SHIELD_CAST` is set, and requires the companion server in `server/` to be running alongside the frontend — see `server/README.md` for setup.
+`server/` is a small Node/Express server for the app's server-backed features — currently just memory photos (see above). It's optional: everything else in the app works without it. See `server/README.md` for setup.
+
+It also hosts an optional add-on, off by default: pushing the current map view to an Nvidia Shield (or similar Android TV device) as a screensaver image, via Home Assistant. Inert unless `VITE_ENABLE_SHIELD_CAST` is set — see `server/README.md`.
 
 ## Built With
 

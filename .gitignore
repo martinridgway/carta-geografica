@@ -12,7 +12,8 @@
 /build
 /dist
 
-# server (Shield screensaver feature)
+# server
+/server/uploads
 /server/screenshots
 
 # misc

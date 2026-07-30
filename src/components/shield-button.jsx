@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { exportMapImage } from "../services/exportMap";
 
-const SERVER_URL = import.meta.env.VITE_SCREENSAVER_SERVER_URL;
+const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
 function ShieldButton({ getMap }) {
   const [status, setStatus] = useState("idle"); // idle | sending | sent | error

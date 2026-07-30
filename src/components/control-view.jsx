@@ -7,7 +7,9 @@ import ShieldButton from "./shield-button";
 import SaveButton from "./save-button";
 import LocationList from "./location-list";
 import VisitLog from "./visit-log";
+import MemoryModal from "./memory-modal";
 import { geocodeAddress, placeTitle } from "../services/geocode";
+import { photoSrc } from "../services/photos";
 import { useLocations } from "../hooks/useLocations";
 
 const DEFAULT_LOCATION = "Boston, MA";
@@ -21,6 +23,7 @@ function ControlView() {
   const [currentLocationId, setCurrentLocationId] = useState(null);
   const [pendingPin, setPendingPin] = useState(null);
   const [pinPickerActive, setPinPickerActive] = useState(false);
+  const [openVisit, setOpenVisit] = useState(null);
   const mapRef = useRef(null);
   const locations = useLocations();
   const currentLocation =
@@ -100,7 +103,9 @@ function ControlView() {
           id: visit.id,
           lon: visit.pin.lon,
           lat: visit.pin.lat,
-          note: visit.note
+          note: visit.note,
+          thumbUrl: visit.photos?.[0] ? photoSrc(visit.photos[0].url) : undefined,
+          visit
         }))
     : [];
   const pins = pendingPin
@@ -119,6 +124,7 @@ function ControlView() {
           lat={lat}
           pins={pins}
           onMapClick={pinPickerActive ? handleMapClick : undefined}
+          onPinClick={pin => setOpenVisit(pin.visit)}
           picking={pinPickerActive}
         />
       )}
@@ -130,6 +136,7 @@ function ControlView() {
             pinPickerActive={pinPickerActive}
             onStartPinPicker={() => setPinPickerActive(true)}
             onClearPin={clearPin}
+            onOpenVisit={setOpenVisit}
           />
         )}
       </Panel>
@@ -147,6 +154,9 @@ function ControlView() {
       </a>
       {SHIELD_CAST_ENABLED && (
         <ShieldButton getMap={() => mapRef.current?.getOlMap()} />
+      )}
+      {openVisit && (
+        <MemoryModal visit={openVisit} onClose={() => setOpenVisit(null)} />
       )}
     </div>
   );

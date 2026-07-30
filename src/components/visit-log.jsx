@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
-import { addVisit, removeVisit } from "../services/locations";
+import { addVisit, addPhotosToVisit, removeVisit } from "../services/locations";
+import { PHOTOS_ENABLED, photoSrc, uploadPhotos } from "../services/photos";
 
 function formatDate(iso) {
   return new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, {
@@ -20,10 +21,14 @@ function VisitLog({
   pendingPin,
   pinPickerActive,
   onStartPinPicker,
-  onClearPin
+  onClearPin,
+  onOpenVisit
 }) {
   const [date, setDate] = useState(today);
   const [note, setNote] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [photoError, setPhotoError] = useState(null);
+  const fileInputRef = useRef(null);
 
   if (!location) {
     return null;
@@ -38,20 +43,40 @@ function VisitLog({
     return null;
   }
 
-  const handleSubmit = event => {
+  const handleSubmit = async event => {
     event.preventDefault();
 
     if (!note.trim()) {
       return;
     }
 
-    addVisit(location.id, {
+    const visit = addVisit(location.id, {
       date,
       note: note.trim(),
       pin: pendingPin || undefined
     });
+
     setNote("");
     onClearPin?.();
+    setPhotoError(null);
+
+    const files = fileInputRef.current?.files;
+
+    if (files?.length) {
+      setUploading(true);
+
+      try {
+        const urls = await uploadPhotos(location.id, visit.id, files);
+        addPhotosToVisit(location.id, visit.id, urls);
+      } catch (err) {
+        setPhotoError(err.message);
+      } finally {
+        setUploading(false);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      }
+    }
   };
 
   const pinLabel = pendingPin
@@ -74,6 +99,23 @@ function VisitLog({
                 />
               )}
               <span className="visit-log__note">{visit.note}</span>
+              {PHOTOS_ENABLED && Boolean(visit.photos?.length) && (
+                <button
+                  type="button"
+                  className="visit-log__photo-chip"
+                  onClick={() => onOpenVisit?.(visit)}
+                  aria-label={`View ${visit.photos.length} photo${
+                    visit.photos.length > 1 ? "s" : ""
+                  }`}
+                >
+                  <img src={photoSrc(visit.photos[0].url)} alt="" />
+                  {visit.photos.length > 1 && (
+                    <span className="visit-log__photo-count">
+                      +{visit.photos.length - 1}
+                    </span>
+                  )}
+                </button>
+              )}
               {!readOnly && (
                 <button
                   type="button"
@@ -101,6 +143,16 @@ function VisitLog({
             value={note}
             onChange={event => setNote(event.target.value)}
           />
+          {PHOTOS_ENABLED && (
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="visit-log__photo-input"
+              title="Attach photos"
+            />
+          )}
           <button
             type="button"
             className={`visit-log__pin-toggle${
@@ -114,9 +166,12 @@ function VisitLog({
           >
             {pinLabel}
           </button>
-          <button type="submit">Add</button>
+          <button type="submit" disabled={uploading}>
+            {uploading ? "Adding…" : "Add"}
+          </button>
         </form>
       )}
+      {photoError && <p className="visit-log__photo-error">{photoError}</p>}
     </div>
   );
 }
